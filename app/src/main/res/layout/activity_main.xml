@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/holo_green_light"
+    tools:context="com.alious.pro.pulltorefresh.simple.MainActivity">
+
+    <com.alious.pro.pulltorefresh.library.widget.BasePullToRefreshView
+        android:background="@android:color/holo_blue_bright"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <Button
+            android:text="click me"
+            android:layout_width="100dp"
+            android:layout_height="40dp"/>
+
+    </com.alious.pro.pulltorefresh.library.widget.BasePullToRefreshView>
+
+</RelativeLayout>
