@@ -22,6 +22,10 @@ public abstract class BasePullToRefreshView extends FrameLayout{
 
     public static final String TAG = "pull_pro";
 
+    public static final String PULL_TO_REFRESH = "下拉刷新";
+    public static final String LOOSE_TO_REFRESH = "松开刷新";
+    public static final String REFRESHING = "加载中...";
+
     public static final int STATE_NONE = 0x00;
     public static final int STATE_PULL_DOWN = 0x01;
     public static final int STATE_LOOSE_REFRESH = 0x02;
@@ -32,11 +36,11 @@ public abstract class BasePullToRefreshView extends FrameLayout{
     private static final int DEFAULT_ANIM_DURATION = 1200;
 
     //dip
-    private static final int DEFAULT_PULL_DISTANCE = 120;
+    private static final int DEFAULT_PULL_DISTANCE = 80;
 
     private volatile int mCurrentState = STATE_NONE;
 
-    private View mPullLoadingView;
+    protected View mPullLoadingView;
     private Scroller mScroller;
 
     private int mScrollDuration = DEFAULT_ANIM_DURATION;
@@ -56,7 +60,7 @@ public abstract class BasePullToRefreshView extends FrameLayout{
         initView();
     }
 
-    private void initView() {
+    protected void initView() {
         mDefaultPullDistance = Utils.dipToPx(getContext(), DEFAULT_PULL_DISTANCE);
         setBackgroundColor(ContextCompat.getColor(getContext(), R.color.colorGray));
         mScroller = new Scroller(getContext());
@@ -103,11 +107,35 @@ public abstract class BasePullToRefreshView extends FrameLayout{
                 break;
             case MotionEvent.ACTION_UP:
                 mLastScrollY = 0f;
-                mScroller.startScroll(getScrollX(), getScrollY(), 0, -getScrollY(), mScrollDuration);
-                invalidate();
+                if (mCurrentState == STATE_LOOSE_REFRESH) {
+                    scrollToRefresh();
+                }else {
+                    scrollToRestore();
+                }
                 break;
         }
         return super.onTouchEvent(event);
+    }
+
+    private void scrollToRefresh() {
+        mCurrentState = STATE_REFRESHING;
+        mScroller.startScroll(0,
+                getScrollY(),
+                0,
+                -getScrollY() - Utils.dipToPx(getContext(), getRefreshBarHeight()),
+                mScrollDuration);
+        onRefreshing();
+        invalidate();
+    }
+
+    private void scrollToRestore() {
+        mCurrentState = STATE_PULL_DOWN;
+        mScroller.startScroll(0,
+                getScrollY(),
+                0,
+                -getScrollY(),
+                mScrollDuration);
+        invalidate();
     }
 
     protected void onPullYPercent(float yDistance) {
@@ -126,6 +154,29 @@ public abstract class BasePullToRefreshView extends FrameLayout{
      */
     protected void onLooseRefresh() {
         Log.e(TAG, "onLooseRefresh");
+    }
+
+    /**
+     * onRefresh ing.
+     */
+    protected void onRefreshing() {
+
+    }
+
+    /**
+     * start refresh
+     */
+    protected void startRefresh() {
+
+    }
+
+    /**
+     * get refresh bar height
+     *
+     * @return
+     */
+    protected int getRefreshBarHeight() {
+        return 50;
     }
 
 
