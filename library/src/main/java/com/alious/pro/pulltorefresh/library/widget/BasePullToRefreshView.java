@@ -3,6 +3,7 @@ package com.alious.pro.pulltorefresh.library.widget;
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -19,18 +20,28 @@ import com.alious.pro.pulltorefresh.library.Utils;
  */
 public abstract class BasePullToRefreshView extends FrameLayout{
 
+    public static final String TAG = "pull_pro";
+
+    public static final int STATE_NONE = 0x00;
+    public static final int STATE_PULL_DOWN = 0x01;
+    public static final int STATE_LOOSE_REFRESH = 0x02;
+    public static final int STATE_REFRESHING = 0x03;
+    public static final int STATE_RESTORE = 0x04;
+
     private static final float DEFAULT_PULL_FACTOR = 0.6f;
     private static final int DEFAULT_ANIM_DURATION = 1200;
 
     //dip
     private static final int DEFAULT_PULL_DISTANCE = 120;
 
+    private volatile int mCurrentState = STATE_NONE;
+
     private View mPullLoadingView;
     private Scroller mScroller;
 
     private int mScrollDuration = DEFAULT_ANIM_DURATION;
     private float mPullFactor = DEFAULT_PULL_FACTOR;
-    private int mDefaultPullDistance;
+    private float mDefaultPullDistance;
 
     public BasePullToRefreshView(Context context) {
         this(context, null);
@@ -56,7 +67,6 @@ public abstract class BasePullToRefreshView extends FrameLayout{
 
     protected abstract int getInflateLayout();
 
-    private float mLastScrollX = 0f;
     private float mLastScrollY = 0f;
 
     @Override
@@ -69,6 +79,7 @@ public abstract class BasePullToRefreshView extends FrameLayout{
         float curY = event.getY();
         switch (action) {
             case MotionEvent.ACTION_DOWN:
+                mCurrentState = STATE_PULL_DOWN;
                 return true;
             case MotionEvent.ACTION_MOVE:
                 if (mLastScrollY == 0f) {
@@ -76,7 +87,19 @@ public abstract class BasePullToRefreshView extends FrameLayout{
                 }
                 scrollBy(0, (int) ((mLastScrollY - curY) * mPullFactor));
                 mLastScrollY = curY;
-                onPullYPercent(Math.min((float)getScrollY() / (float)mDefaultPullDistance, 1.0f));
+                float percent = Math.abs((float)getScrollY() / mDefaultPullDistance);
+                if (percent >= 1.0f) {
+                    if (mCurrentState != STATE_LOOSE_REFRESH) {
+                        onLooseRefresh();
+                    }
+                    mCurrentState = STATE_LOOSE_REFRESH;
+                }else {
+                    if (mCurrentState != STATE_PULL_DOWN) {
+                        onPullDown();
+                    }
+                    mCurrentState = STATE_PULL_DOWN;
+                }
+                onPullYPercent(Math.min(percent, 1.0f));
                 break;
             case MotionEvent.ACTION_UP:
                 mLastScrollY = 0f;
@@ -95,14 +118,14 @@ public abstract class BasePullToRefreshView extends FrameLayout{
      * on pull down, prepare for refresh
      */
     protected void onPullDown() {
-
+        Log.e(TAG, "onPullDown");
     }
 
     /**
      * on pull finished, loose to refresh
      */
     protected void onLooseRefresh() {
-
+        Log.e(TAG, "onLooseRefresh");
     }
 
 
