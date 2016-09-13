@@ -5,6 +5,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.support.v4.content.ContextCompat;
@@ -16,17 +18,17 @@ import com.alious.pro.pulltorefresh.library.Utils;
 
 /**
  * To-ba-to loading view
- *
+ * <p/>
  * Created by aliouswang on 16/9/13.
  */
-public class ToBaToLoadingView extends View{
+public class ToBaToLoadingView extends View {
 
     public static final int CIRCLE_STROKE_WIDTH = 3;
 
     private Context mContext;
 
     private Paint mCirclePaint;
-    private Paint mClearPaint;
+    private Paint mBitmapPaint;
 
     private float percent = 0.5f;
     private int startAngel = -90;
@@ -38,6 +40,8 @@ public class ToBaToLoadingView extends View{
     private Rect mCenterSrcRect;
     private RectF mCenterDestRect;
     private int mCenterBitmapDrawWidth;
+
+    private PorterDuffXfermode mSrcInXfermode;
 
     public ToBaToLoadingView(Context context) {
         this(context, null);
@@ -64,7 +68,7 @@ public class ToBaToLoadingView extends View{
 
     private void initView() {
         mContext = getContext();
-
+        mSrcInXfermode = new PorterDuffXfermode(PorterDuff.Mode.SRC_IN);
         mCenterBitmap =
                 BitmapFactory.decodeResource(getResources(), R.drawable.ic_circle_refresh);
 
@@ -74,12 +78,11 @@ public class ToBaToLoadingView extends View{
         mCirclePaint.setStrokeWidth(Utils.dipToPx(mContext, CIRCLE_STROKE_WIDTH));
         mCirclePaint.setColor(ContextCompat.getColor(mContext, R.color.colorBBBBBB));
 
-//        mClearPaint = new Paint();
-//        mClearPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
-//        mClearPaint.setAlpha(0);
-////        mClearPaint.setColor(ContextCompat.getColor(mContext, android.R.color.transparent));
-//        mClearPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
-//        mClearPaint.setStyle(Paint.Style.STROKE);
+        mBitmapPaint = new Paint();
+        mBitmapPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
+//        mBitmapPaint.setAlpha(0);
+//        mBitmapPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+//        mBitmapPaint.setStyle(Paint.Style.STROKE);
     }
 
     @Override
@@ -110,23 +113,31 @@ public class ToBaToLoadingView extends View{
 
     @Override
     protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
+
         if (percent <= 1.0f) {
             canvas.drawArc(mBounds, startAngel, endAngel, false, mCirclePaint);
 
-            canvas.drawBitmap(mCenterBitmap, null, mCenterDestRect, mCirclePaint);
+            int save = canvas.saveLayer(0, 0, mBounds.width(), mBounds.height(), null, Canvas.ALL_SAVE_FLAG);
 
-//            mCirclePaint.setAlpha(0);
-//            mCirclePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
-//            canvas.drawCircle(mBounds.centerX(),
-//                    mBounds.centerY(),
-//                    (mBounds.width()/2 - Utils.dipToPx(mContext, CIRCLE_STROKE_WIDTH)),
-//                    mCirclePaint);
-//            mCirclePaint.setXfermode(null);
-//            canvas.drawArc(0, 0, 30, 30, 0, 180, true, mCirclePaint);
-//            canvas.drawCircle(mBounds.centerX(), mBounds.centerY(), mBounds.width()/ 2, mCirclePaint);
-        }else {
+            mBitmapPaint.setAlpha(255);
+            mBitmapPaint.setXfermode(null);
+            mBitmapPaint.setStyle(Paint.Style.FILL);
+            canvas.drawBitmap(mCenterBitmap, null, mCenterDestRect, mBitmapPaint);
+
+            mBitmapPaint.setAlpha(0);
+            mBitmapPaint.setXfermode(mSrcInXfermode);
+            canvas.drawRect(mCenterDestRect.left,
+                    mCenterDestRect.top + (percent * mCenterDestRect.height()),
+                    mCenterDestRect.right,
+                    mCenterDestRect.bottom,
+                    mBitmapPaint);
+
+            //restore to canvas
+            canvas.restoreToCount(save);
+
+        } else {
 
         }
+        super.onDraw(canvas);
     }
 }
