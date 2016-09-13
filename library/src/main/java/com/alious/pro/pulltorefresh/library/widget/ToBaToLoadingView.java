@@ -23,7 +23,7 @@ import com.alious.pro.pulltorefresh.library.Utils;
  */
 public class ToBaToLoadingView extends View {
 
-    public static final int CIRCLE_STROKE_WIDTH = 3;
+    public static final int CIRCLE_STROKE_WIDTH = 1;
 
     private Context mContext;
 
@@ -105,10 +105,10 @@ public class ToBaToLoadingView extends View {
         if (mBounds == null) {
             int width = MeasureSpec.getSize(widthMeasureSpec);
             mBounds = new RectF();
-            mBounds.left = 10;
-            mBounds.top = 10;
-            mBounds.right = width - 20;
-            mBounds.bottom = width - 20;
+            mBounds.left = 15;
+            mBounds.top = 15;
+            mBounds.right = width - 30;
+            mBounds.bottom = width - 30;
 
             mCenterBitmapDrawWidth = Utils.dipToPx(getContext(), 8);
             mCenterSrcRect = new Rect(0, 0, mCenterBitmapDrawWidth, mCenterBitmapDrawWidth);

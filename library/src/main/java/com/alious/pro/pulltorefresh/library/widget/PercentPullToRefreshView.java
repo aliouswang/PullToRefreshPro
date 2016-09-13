@@ -68,12 +68,14 @@ public class PercentPullToRefreshView extends BasePullToRefreshView{
     protected void onRefreshing() {
         super.onRefreshing();
         mToBaToLoadingView.setRefreshing(true);
+        tv_loading.setText(BasePullToRefreshView.REFRESHING);
     }
 
     @Override
     protected void onRestore() {
         super.onRestore();
         mToBaToLoadingView.setRefreshing(false);
+        tv_loading.setText(BasePullToRefreshView.PULL_TO_REFRESH);
     }
 
     @Override
