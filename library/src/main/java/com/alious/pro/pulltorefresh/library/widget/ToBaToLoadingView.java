@@ -1,12 +1,14 @@
 package com.alious.pro.pulltorefresh.library.widget;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
 import com.alious.pro.pulltorefresh.library.R;
@@ -31,6 +33,11 @@ public class ToBaToLoadingView extends View{
     private int endAngel = 0;
 
     private RectF mBounds;
+    private Bitmap mCenterBitmap;
+
+    private Rect mCenterSrcRect;
+    private RectF mCenterDestRect;
+    private int mCenterBitmapDrawWidth;
 
     public ToBaToLoadingView(Context context) {
         this(context, null);
@@ -52,12 +59,15 @@ public class ToBaToLoadingView extends View{
     public void setPercent(float percent) {
         this.percent = percent;
         endAngel = (int) (360 * percent);
-        Log.e("pro_photo", percent + "," + endAngel);
         invalidate();
     }
 
     private void initView() {
         mContext = getContext();
+
+        mCenterBitmap =
+                BitmapFactory.decodeResource(getResources(), R.drawable.ic_circle_refresh);
+
         mCirclePaint = new Paint();
         mCirclePaint.setFlags(Paint.ANTI_ALIAS_FLAG);
         mCirclePaint.setStyle(Paint.Style.STROKE);
@@ -85,7 +95,16 @@ public class ToBaToLoadingView extends View{
             mBounds.left = 10;
             mBounds.top = 10;
             mBounds.right = width - 20;
-            mBounds.bottom = mBounds.right;
+            mBounds.bottom = width - 20;
+
+            mCenterBitmapDrawWidth = Utils.dipToPx(getContext(), 8);
+            mCenterSrcRect = new Rect(0, 0, mCenterBitmapDrawWidth, mCenterBitmapDrawWidth);
+            mCenterDestRect = new RectF();
+            mCenterDestRect.left = mBounds.left + mCenterBitmapDrawWidth;
+            mCenterDestRect.top = mBounds.top + mCenterBitmapDrawWidth;
+            mCenterDestRect.right = mBounds.right - mCenterBitmapDrawWidth;
+            mCenterDestRect.bottom = mBounds.bottom - mCenterBitmapDrawWidth;
+
         }
     }
 
@@ -94,6 +113,9 @@ public class ToBaToLoadingView extends View{
         super.onDraw(canvas);
         if (percent <= 1.0f) {
             canvas.drawArc(mBounds, startAngel, endAngel, false, mCirclePaint);
+
+            canvas.drawBitmap(mCenterBitmap, null, mCenterDestRect, mCirclePaint);
+
 //            mCirclePaint.setAlpha(0);
 //            mCirclePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
 //            canvas.drawCircle(mBounds.centerX(),
