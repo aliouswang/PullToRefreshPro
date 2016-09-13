@@ -9,7 +9,7 @@
 
     <ImageView
         android:paddingTop="300dp"
-        android:paddingBottom="50dp"
+        android:paddingBottom="60dp"
         android:src="@drawable/uik_list_logo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>

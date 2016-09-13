@@ -10,10 +10,52 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <Button
-            android:text="click me"
-            android:layout_width="100dp"
-            android:layout_height="40dp"/>
+        <ScrollView
+            android:overScrollMode="never"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:text="click me1"
+                    android:layout_width="100dp"
+                    android:layout_height="400dp"/>
+                <TextView
+                    android:text="click me2"
+                    android:layout_width="100dp"
+                    android:layout_height="400dp"/>
+                <TextView
+                    android:text="click me3"
+                    android:layout_width="100dp"
+                    android:layout_height="400dp"/>
+                <TextView
+                    android:text="click me4"
+                    android:layout_width="100dp"
+                    android:layout_height="400dp"/>
+                <TextView
+                    android:text="click me5"
+                    android:layout_width="100dp"
+                    android:layout_height="400dp"/>
+                <TextView
+                    android:text="click me6"
+                    android:layout_width="100dp"
+                    android:layout_height="400dp"/>
+                <TextView
+                    android:text="click me7"
+                    android:layout_width="100dp"
+                    android:layout_height="400dp"/>
+                <TextView
+                    android:text="click me8"
+                    android:layout_width="100dp"
+                    android:layout_height="400dp"/>
+                <TextView
+                    android:text="click me9"
+                    android:layout_width="100dp"
+                    android:layout_height="400dp"/>
+            </LinearLayout>
+        </ScrollView>
 
     </com.alious.pro.pulltorefresh.library.widget.DefaultPullToRefreshView>
 

@@ -9,6 +9,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.alious.pro.pulltorefresh.library.R;
+import com.alious.pro.pulltorefresh.library.listener.OnRefreshListener;
 
 /**
  * Created by aliouswang on 16/9/12.
@@ -42,6 +43,26 @@ public class DefaultPullToRefreshView extends BasePullToRefreshView {
         img_loading = (ImageView) mPullLoadingView.findViewById(R.id.img_loading);
         pb_loading = (ProgressBar) mPullLoadingView.findViewById(R.id.pb_loading);
         tv_loading = (TextView) mPullLoadingView.findViewById(R.id.tv_loading);
+
+        setOnRefreshListener(new OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                tv_loading.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        setRefresh(false);
+                    }
+                }, 2000);
+            }
+        });
+    }
+
+    @Override
+    protected void onRestore() {
+        super.onRestore();
+        img_loading.setVisibility(VISIBLE);
+        pb_loading.setVisibility(GONE);
+        tv_loading.setText(BasePullToRefreshView.PULL_TO_REFRESH);
     }
 
     @Override

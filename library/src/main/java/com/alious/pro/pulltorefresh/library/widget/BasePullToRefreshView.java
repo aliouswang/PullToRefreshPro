@@ -2,16 +2,21 @@ package com.alious.pro.pulltorefresh.library.widget;
 
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.MotionEventCompat;
+import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
+import android.widget.AbsListView;
 import android.widget.FrameLayout;
 import android.widget.Scroller;
 
 import com.alious.pro.pulltorefresh.library.R;
 import com.alious.pro.pulltorefresh.library.Utils;
+import com.alious.pro.pulltorefresh.library.listener.OnRefreshListener;
 
 /**
  * Base pull to refresh view
@@ -21,6 +26,8 @@ import com.alious.pro.pulltorefresh.library.Utils;
 public abstract class BasePullToRefreshView extends FrameLayout{
 
     public static final String TAG = "pull_pro";
+
+    private static final int INVALID_POINTER = -1;
 
     public static final String PULL_TO_REFRESH = "下拉刷新";
     public static final String LOOSE_TO_REFRESH = "松开刷新";
@@ -40,12 +47,22 @@ public abstract class BasePullToRefreshView extends FrameLayout{
 
     private volatile int mCurrentState = STATE_NONE;
 
+    private OnRefreshListener mOnRefreshListener;
+
     protected View mPullLoadingView;
     private Scroller mScroller;
 
     private int mScrollDuration = DEFAULT_ANIM_DURATION;
     private float mPullFactor = DEFAULT_PULL_FACTOR;
     private float mDefaultPullDistance;
+
+    private int mTouchSlop;
+    private float mInitialMotionY;
+    private float mInitialDownY;
+    private boolean mIsBeingDragged;
+    private int mActivePointerId = INVALID_POINTER;
+
+    private View mTarget;
 
     public BasePullToRefreshView(Context context) {
         this(context, null);
@@ -61,15 +78,98 @@ public abstract class BasePullToRefreshView extends FrameLayout{
     }
 
     protected void initView() {
+        mTouchSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
         mDefaultPullDistance = Utils.dipToPx(getContext(), DEFAULT_PULL_DISTANCE);
         setBackgroundColor(ContextCompat.getColor(getContext(), R.color.colorGray));
         mScroller = new Scroller(getContext());
         mPullLoadingView = LayoutInflater.from(getContext())
                 .inflate(getInflateLayout(), this, false);
+        mPullLoadingView.setId(R.id.pull_refresh_loading_id);
         this.addView(mPullLoadingView);
     }
 
+    public OnRefreshListener getOnRefreshListener() {
+        return mOnRefreshListener;
+    }
+
+    public void setOnRefreshListener(OnRefreshListener onRefreshListener) {
+        mOnRefreshListener = onRefreshListener;
+    }
+
     protected abstract int getInflateLayout();
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        ensureTarget();
+        final int action = MotionEventCompat.getActionMasked(ev);
+        int pointerIndex;
+        if (canChildScrollUp()) {
+            return false;
+        }
+        switch (action) {
+            case MotionEvent.ACTION_DOWN:
+                mActivePointerId = ev.getPointerId(0);
+                mIsBeingDragged = false;
+                pointerIndex = ev.findPointerIndex(mActivePointerId);
+                if (pointerIndex < 0) {
+                    return false;
+                }
+                mInitialDownY = ev.getY(pointerIndex);
+                break;
+            case MotionEvent.ACTION_MOVE:
+                if (mActivePointerId == INVALID_POINTER) {
+                    return false;
+                }
+                pointerIndex = ev.findPointerIndex(mActivePointerId);
+                if (pointerIndex < 0) {
+                    return false;
+                }
+                final float y = ev.getY(pointerIndex);
+                startDragging(y);
+                break;
+            case MotionEvent.ACTION_UP:
+                mIsBeingDragged = false;
+                mActivePointerId = INVALID_POINTER;
+                break;
+        }
+        return mIsBeingDragged;
+    }
+
+    private void startDragging(float y) {
+        final float yDiff = y - mInitialDownY;
+        if (yDiff > mTouchSlop && !mIsBeingDragged) {
+            mInitialMotionY = mInitialDownY + mTouchSlop;
+            mIsBeingDragged = true;
+        }
+    }
+
+    private void ensureTarget() {
+        if (mTarget == null) {
+            int childCount = getChildCount();
+            for (int i = 0; i < childCount; i++) {
+                View view = getChildAt(i);
+                if (view.getId() != R.id.pull_refresh_loading_id) {
+                    mTarget = view;
+                    return;
+                }
+            }
+        }
+    }
+
+    private boolean canChildScrollUp() {
+        if (android.os.Build.VERSION.SDK_INT < 14) {
+            if (mTarget instanceof AbsListView) {
+                final AbsListView absListView = (AbsListView) mTarget;
+                return absListView.getChildCount() > 0
+                        && (absListView.getFirstVisiblePosition() > 0 || absListView.getChildAt(0)
+                        .getTop() < absListView.getPaddingTop());
+            } else {
+                return ViewCompat.canScrollVertically(mTarget, -1) || mTarget.getScrollY() > 0;
+            }
+        } else {
+            return ViewCompat.canScrollVertically(mTarget, -1);
+        }
+    }
 
     private float mLastScrollY = 0f;
 
@@ -92,7 +192,7 @@ public abstract class BasePullToRefreshView extends FrameLayout{
                 scrollBy(0, (int) ((mLastScrollY - curY) * mPullFactor));
                 mLastScrollY = curY;
                 float percent = Math.abs((float)getScrollY() / mDefaultPullDistance);
-                if (percent >= 1.0f) {
+                if (percent >= 1.0f && getScrollY() < 0) {
                     if (mCurrentState != STATE_LOOSE_REFRESH) {
                         onLooseRefresh();
                     }
@@ -125,6 +225,9 @@ public abstract class BasePullToRefreshView extends FrameLayout{
                 -getScrollY() - Utils.dipToPx(getContext(), getRefreshBarHeight()),
                 mScrollDuration);
         onRefreshing();
+        if (mOnRefreshListener != null) {
+            mOnRefreshListener.onRefresh();
+        }
         invalidate();
     }
 
@@ -136,6 +239,10 @@ public abstract class BasePullToRefreshView extends FrameLayout{
                 -getScrollY(),
                 mScrollDuration);
         invalidate();
+    }
+
+    protected void onRestore() {
+
     }
 
     protected void onPullYPercent(float yDistance) {
@@ -166,8 +273,12 @@ public abstract class BasePullToRefreshView extends FrameLayout{
     /**
      * start refresh
      */
-    protected void startRefresh() {
+    protected void setRefresh(boolean bRefresh) {
+        if (bRefresh) {
 
+        }else {
+            scrollToRestore();
+        }
     }
 
     /**
@@ -176,7 +287,7 @@ public abstract class BasePullToRefreshView extends FrameLayout{
      * @return
      */
     protected int getRefreshBarHeight() {
-        return 50;
+        return 60;
     }
 
 
@@ -192,6 +303,10 @@ public abstract class BasePullToRefreshView extends FrameLayout{
         if (mScroller.computeScrollOffset()) {
             scrollTo(mScroller.getCurrX(), mScroller.getCurrY());
             invalidate();
+        }else {
+            if (mCurrentState == STATE_PULL_DOWN) {
+                onRestore();
+            }
         }
     }
 }
