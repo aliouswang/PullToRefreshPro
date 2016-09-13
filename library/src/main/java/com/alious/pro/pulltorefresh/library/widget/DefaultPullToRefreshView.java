@@ -34,7 +34,7 @@ public class DefaultPullToRefreshView extends BasePullToRefreshView {
 
     @Override
     protected int getInflateLayout() {
-        return R.layout.layout_pull_loading;
+        return R.layout.layout_default_pull_loading;
     }
 
     @Override

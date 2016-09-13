@@ -54,7 +54,7 @@ public abstract class BasePullToRefreshView extends FrameLayout{
 
     private int mScrollDuration = DEFAULT_ANIM_DURATION;
     private float mPullFactor = DEFAULT_PULL_FACTOR;
-    private float mDefaultPullDistance;
+    private float mPullDistance;
 
     private int mTouchSlop;
     private float mInitialMotionY;
@@ -79,7 +79,7 @@ public abstract class BasePullToRefreshView extends FrameLayout{
 
     protected void initView() {
         mTouchSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
-        mDefaultPullDistance = Utils.dipToPx(getContext(), DEFAULT_PULL_DISTANCE);
+        mPullDistance = Utils.dipToPx(getContext(), getPullRefreshDistance());
         setBackgroundColor(ContextCompat.getColor(getContext(), R.color.colorGray));
         mScroller = new Scroller(getContext());
         mPullLoadingView = LayoutInflater.from(getContext())
@@ -191,7 +191,7 @@ public abstract class BasePullToRefreshView extends FrameLayout{
                 }
                 scrollBy(0, (int) ((mLastScrollY - curY) * mPullFactor));
                 mLastScrollY = curY;
-                float percent = Math.abs((float)getScrollY() / mDefaultPullDistance);
+                float percent = Math.abs((float)getScrollY() / mPullDistance);
                 if (percent >= 1.0f && getScrollY() < 0) {
                     if (mCurrentState != STATE_LOOSE_REFRESH) {
                         onLooseRefresh();
@@ -288,6 +288,10 @@ public abstract class BasePullToRefreshView extends FrameLayout{
      */
     protected int getRefreshBarHeight() {
         return 60;
+    }
+
+    protected int getPullRefreshDistance() {
+        return DEFAULT_PULL_DISTANCE;
     }
 
 
