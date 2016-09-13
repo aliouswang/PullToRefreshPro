@@ -36,12 +36,15 @@ public class ToBaToLoadingView extends View {
 
     private RectF mBounds;
     private Bitmap mCenterBitmap;
+    private Bitmap mLoadingBitmap;
 
     private Rect mCenterSrcRect;
     private RectF mCenterDestRect;
     private int mCenterBitmapDrawWidth;
 
     private PorterDuffXfermode mSrcInXfermode;
+
+    private boolean mRefreshing;
 
     public ToBaToLoadingView(Context context) {
         this(context, null);
@@ -66,11 +69,18 @@ public class ToBaToLoadingView extends View {
         invalidate();
     }
 
+    public void setRefreshing(boolean refreshing) {
+        mRefreshing = refreshing;
+        invalidate();
+    }
+
     private void initView() {
         mContext = getContext();
         mSrcInXfermode = new PorterDuffXfermode(PorterDuff.Mode.SRC_IN);
         mCenterBitmap =
                 BitmapFactory.decodeResource(getResources(), R.drawable.ic_circle_refresh);
+        mLoadingBitmap = BitmapFactory
+                .decodeResource(getResources(), R.drawable.ic_circle_gray);
 
         mCirclePaint = new Paint();
         mCirclePaint.setFlags(Paint.ANTI_ALIAS_FLAG);
@@ -111,10 +121,14 @@ public class ToBaToLoadingView extends View {
         }
     }
 
+    int rotateDegress = 0;
     @Override
     protected void onDraw(Canvas canvas) {
 
-        if (percent <= 1.0f) {
+        if (!isRefreshing()) {
+            if (rotateDegress != 0) {
+                rotateDegress = 0;
+            }
             canvas.drawArc(mBounds, startAngel, endAngel, false, mCirclePaint);
 
             int save = canvas.saveLayer(0, 0, mBounds.width(), mBounds.height(), null, Canvas.ALL_SAVE_FLAG);
@@ -136,8 +150,18 @@ public class ToBaToLoadingView extends View {
             canvas.restoreToCount(save);
 
         } else {
-
+            rotateDegress += 4;
+            canvas.rotate(rotateDegress, mBounds.centerX(), mBounds.centerY());
+            mBitmapPaint.setAlpha(255);
+            mBitmapPaint.setXfermode(null);
+            mBitmapPaint.setStyle(Paint.Style.FILL);
+            canvas.drawBitmap(mLoadingBitmap, null, mBounds, mBitmapPaint);
+            invalidate();
         }
         super.onDraw(canvas);
+    }
+
+    public boolean isRefreshing() {
+        return mRefreshing;
     }
 }

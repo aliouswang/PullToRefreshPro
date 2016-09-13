@@ -5,6 +5,7 @@ import android.util.AttributeSet;
 import android.widget.TextView;
 
 import com.alious.pro.pulltorefresh.library.R;
+import com.alious.pro.pulltorefresh.library.listener.OnRefreshListener;
 
 /**
  * Created by aliouswang on 16/9/13.
@@ -33,6 +34,18 @@ public class PercentPullToRefreshView extends BasePullToRefreshView{
         mToBaToLoadingView = (ToBaToLoadingView)
                 mPullLoadingView.findViewById(R.id.tobato_loading);
         tv_loading = (TextView) mPullLoadingView.findViewById(R.id.tv_loading);
+
+        setOnRefreshListener(new OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                tv_loading.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        setRefresh(false);
+                    }
+                }, 2000);
+            }
+        });
     }
 
     @Override
@@ -49,6 +62,18 @@ public class PercentPullToRefreshView extends BasePullToRefreshView{
     @Override
     protected int getPullRefreshDistance() {
         return 120;
+    }
+
+    @Override
+    protected void onRefreshing() {
+        super.onRefreshing();
+        mToBaToLoadingView.setRefreshing(true);
+    }
+
+    @Override
+    protected void onRestore() {
+        super.onRestore();
+        mToBaToLoadingView.setRefreshing(false);
     }
 
     @Override
