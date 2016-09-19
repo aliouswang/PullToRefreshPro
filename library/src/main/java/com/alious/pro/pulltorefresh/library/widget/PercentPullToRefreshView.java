@@ -5,14 +5,17 @@ import android.util.AttributeSet;
 import android.widget.TextView;
 
 import com.alious.pro.pulltorefresh.library.R;
+import com.alious.pro.pulltorefresh.library.interfaces.IPercentView;
 import com.alious.pro.pulltorefresh.library.listener.OnRefreshListener;
 
 /**
+ * Percent pull to refresh view.
+ *
  * Created by aliouswang on 16/9/13.
  */
-public class PercentPullToRefreshView extends BasePullToRefreshView{
+public abstract class PercentPullToRefreshView extends BasePullToRefreshView{
 
-    private ToBaToLoadingView mToBaToLoadingView;
+    private IPercentView mIPercentView;
     private TextView tv_loading;
 
     public PercentPullToRefreshView(Context context) {
@@ -31,8 +34,7 @@ public class PercentPullToRefreshView extends BasePullToRefreshView{
     @Override
     protected void initView() {
         super.initView();
-        mToBaToLoadingView = (ToBaToLoadingView)
-                mPullLoadingView.findViewById(R.id.tobato_loading);
+        mIPercentView = getPercentView();
         tv_loading = (TextView) mPullLoadingView.findViewById(R.id.tv_loading);
 
         setOnRefreshListener(new OnRefreshListener() {
@@ -49,14 +51,19 @@ public class PercentPullToRefreshView extends BasePullToRefreshView{
     }
 
     @Override
-    protected int getInflateLayout() {
-        return R.layout.layout_tobato_pull_loading;
-    }
+    protected abstract int getInflateLayout();
+
+    protected abstract IPercentView getPercentView();
+
+    //    @Override
+//    protected int getInflateLayout() {
+//        return R.layout.layout_tobato_pull_loading;
+//    }
 
     @Override
     protected void onPullYPercent(float yDistance) {
         super.onPullYPercent(yDistance);
-        mToBaToLoadingView.setPercent(yDistance);
+        mIPercentView.setPercent(yDistance);
     }
 
     @Override
@@ -67,14 +74,14 @@ public class PercentPullToRefreshView extends BasePullToRefreshView{
     @Override
     protected void onRefreshing() {
         super.onRefreshing();
-        mToBaToLoadingView.setRefreshing(true);
+        mIPercentView.setRefreshing(true);
         tv_loading.setText(BasePullToRefreshView.REFRESHING);
     }
 
     @Override
     protected void onRestore() {
         super.onRestore();
-        mToBaToLoadingView.setRefreshing(false);
+        mIPercentView.setRefreshing(false);
         tv_loading.setText(BasePullToRefreshView.PULL_TO_REFRESH);
     }
 

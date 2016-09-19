@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context="com.alious.pro.pulltorefresh.simple.MainActivity">
 
-    <com.alious.pro.pulltorefresh.library.widget.PercentPullToRefreshView
+    <com.alious.pro.pulltorefresh.library.widget.MeiTuanPullToRefreshView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -56,6 +56,6 @@
             </LinearLayout>
         </ScrollView>
 
-    </com.alious.pro.pulltorefresh.library.widget.PercentPullToRefreshView>
+    </com.alious.pro.pulltorefresh.library.widget.MeiTuanPullToRefreshView>
 
 </RelativeLayout>

@@ -15,15 +15,16 @@ import android.view.View;
 
 import com.alious.pro.pulltorefresh.library.R;
 import com.alious.pro.pulltorefresh.library.Utils;
+import com.alious.pro.pulltorefresh.library.interfaces.IPercentView;
 
 /**
  * To-ba-to loading view
  * <p/>
  * Created by aliouswang on 16/9/13.
  */
-public class ToBaToLoadingView extends View {
+public class ToBaToLoadingView extends View implements IPercentView{
 
-    public static final int CIRCLE_STROKE_WIDTH = 1;
+    public static final float CIRCLE_STROKE_WIDTH = 1.5f;
 
     private Context mContext;
 
@@ -59,20 +60,8 @@ public class ToBaToLoadingView extends View {
         initView();
     }
 
-    public float getPercent() {
-        return percent;
-    }
 
-    public void setPercent(float percent) {
-        this.percent = percent;
-        endAngel = (int) (360 * percent);
-        invalidate();
-    }
 
-    public void setRefreshing(boolean refreshing) {
-        mRefreshing = refreshing;
-        invalidate();
-    }
 
     private void initView() {
         mContext = getContext();
@@ -117,7 +106,6 @@ public class ToBaToLoadingView extends View {
             mCenterDestRect.top = mBounds.top + mCenterBitmapDrawWidth;
             mCenterDestRect.right = mBounds.right - mCenterBitmapDrawWidth;
             mCenterDestRect.bottom = mBounds.bottom - mCenterBitmapDrawWidth;
-
         }
     }
 
@@ -161,7 +149,20 @@ public class ToBaToLoadingView extends View {
         super.onDraw(canvas);
     }
 
+    @Override
     public boolean isRefreshing() {
         return mRefreshing;
+    }
+
+    @Override
+    public void setPercent(float percent) {
+        this.percent = percent;
+        endAngel = (int) (360 * percent);
+        invalidate();
+    }
+
+    public void setRefreshing(boolean bRefresh) {
+        mRefreshing = bRefresh;
+        invalidate();
     }
 }

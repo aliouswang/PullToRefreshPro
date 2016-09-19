@@ -14,7 +14,7 @@ public class Utils {
      * @param dip
      * @return
      */
-    public static int dipToPx(Context context, int dip) {
+    public static int dipToPx(Context context, float dip) {
         float scale = context.getResources().getDisplayMetrics().density;
         return (int) (dip * scale + 0.5f);
     }

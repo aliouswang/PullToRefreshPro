@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:background="@color/colorGray"
+
+              android:gravity="center"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content">
+
+    <ImageView
+        android:paddingTop="300dp"
+        android:paddingBottom="60dp"
+        android:src="@drawable/uik_list_logo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <LinearLayout
+        android:padding="10dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <ProgressBar
+                android:id="@+id/pb_loading"
+                android:layout_gravity="center_vertical"
+                android:visibility="gone"
+                android:layout_width="30dp"
+                android:layout_height="30dp"/>
+
+            <com.alious.pro.pulltorefresh.library.widget.MeiTuanLoadingView
+                android:id="@+id/meituan_loading"
+                android:layout_width="40dp"
+                android:layout_height="40dp"/>
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/tv_loading"
+            android:text="下拉刷新"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+
+
+</LinearLayout>
