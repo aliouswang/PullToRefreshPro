@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="PullRefreshView">
+        <attr name="scrollStyle" format="string"/>
+        <attr name="refreshStyle" format="string"/>
+        <attr name="maxPullDistance" format="dimension"/>
+        <attr name="loadingLayout" format="integer"/>
+    </declare-styleable>
+
+</resources>

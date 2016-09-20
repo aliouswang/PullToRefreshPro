@@ -14,7 +14,7 @@ import com.alious.pro.pulltorefresh.library.listener.OnRefreshListener;
 /**
  * Created by aliouswang on 16/9/12.
  */
-public class DefaultPullToRefreshView extends BasePullToRefreshView {
+public class DefaultPullToRefreshView extends ProPullToRefreshView {
 
     private ImageView img_loading;
     private ProgressBar pb_loading;
@@ -32,10 +32,10 @@ public class DefaultPullToRefreshView extends BasePullToRefreshView {
         super(context, attrs, defStyleAttr);
     }
 
-    @Override
-    protected int getInflateLayout() {
-        return R.layout.layout_default_pull_loading;
-    }
+//    @Override
+//    protected int getInflateLayout() {
+//        return R.layout.layout_default_pull_loading;
+//    }
 
     @Override
     protected void initView() {
@@ -62,7 +62,7 @@ public class DefaultPullToRefreshView extends BasePullToRefreshView {
         super.onRestore();
         img_loading.setVisibility(VISIBLE);
         pb_loading.setVisibility(GONE);
-        tv_loading.setText(BasePullToRefreshView.PULL_TO_REFRESH);
+        tv_loading.setText(ProPullToRefreshView.PULL_TO_REFRESH);
     }
 
     @Override
@@ -74,7 +74,7 @@ public class DefaultPullToRefreshView extends BasePullToRefreshView {
         animation.setDuration(300);//设置动画持续时间
         animation.setFillAfter(true);
         img_loading.startAnimation(animation);
-        tv_loading.setText(BasePullToRefreshView.PULL_TO_REFRESH);
+        tv_loading.setText(ProPullToRefreshView.PULL_TO_REFRESH);
     }
 
     @Override
@@ -86,7 +86,7 @@ public class DefaultPullToRefreshView extends BasePullToRefreshView {
         animation.setDuration(300);//设置动画持续时间
         animation.setFillAfter(true);
         img_loading.startAnimation(animation);
-        tv_loading.setText(BasePullToRefreshView.LOOSE_TO_REFRESH);
+        tv_loading.setText(ProPullToRefreshView.LOOSE_TO_REFRESH);
     }
 
     @Override
@@ -95,6 +95,6 @@ public class DefaultPullToRefreshView extends BasePullToRefreshView {
         img_loading.clearAnimation();
         img_loading.setVisibility(GONE);
         pb_loading.setVisibility(VISIBLE);
-        tv_loading.setText(BasePullToRefreshView.REFRESHING);
+        tv_loading.setText(ProPullToRefreshView.REFRESHING);
     }
 }

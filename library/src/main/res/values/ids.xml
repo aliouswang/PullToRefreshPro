@@ -2,5 +2,9 @@
 <resources>
     
     <item name="pull_refresh_loading_id" type="id">999</item>
-    
+
+    <item name="pb_loading" type="id">1000</item>
+    <item name="loading_view" type="id">1001</item>
+    <item name="tv_loading" type="id">1002</item>
+
 </resources>

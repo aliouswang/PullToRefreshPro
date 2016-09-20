@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.alious.pro.pulltorefresh.simple.MainActivity">
 
-    <com.alious.pro.pulltorefresh.library.widget.MeiTuanPullToRefreshView
+    <com.alious.pro.pulltorefresh.library.widget.ProPullToRefreshView
+        app:scrollStyle="@string/pull_scroll_parallel_style"
+        app:maxPullDistance="200dp"
+        app:loadingLayout="@layout/layout_tobato_pull_loading"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -56,6 +60,6 @@
             </LinearLayout>
         </ScrollView>
 
-    </com.alious.pro.pulltorefresh.library.widget.MeiTuanPullToRefreshView>
+    </com.alious.pro.pulltorefresh.library.widget.ProPullToRefreshView>
 
 </RelativeLayout>

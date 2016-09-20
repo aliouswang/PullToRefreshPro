@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">Library</string>
+
+    <string name="pull_scroll_default_style">scrollDefault</string>
+    <string name="pull_scroll_parallel_style">scrollParallel</string>
+
+    <string name="pull_refresh_default_style">refreshDefault</string>
+    <string name="pull_refresh_tobato_style">refreshToBaTo</string>
+    <string name="pull_refresh_meituan_style">refreshMeiTuan</string>
+    <string name="pull_refresh_baidu_style">refreshBaiDu</string>
+    <string name="pull_refresh_weixin_style">refreshWeiXin</string>
+    <string name="pull_refresh_taobao_style">refreshTaoBao</string>
+    <string name="pull_refresh_eleme_style">refreshEleme</string>
+
 </resources>

@@ -24,20 +24,20 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
             <ProgressBar
-                android:id="@+id/pb_loading"
+                android:id="@id/pb_loading"
                 android:layout_gravity="center_vertical"
                 android:visibility="gone"
                 android:layout_width="30dp"
                 android:layout_height="30dp"/>
 
             <com.alious.pro.pulltorefresh.library.widget.ToBaToLoadingView
-                android:id="@+id/tobato_loading"
+                android:id="@id/loading_view"
                 android:layout_width="40dp"
                 android:layout_height="40dp"/>
         </RelativeLayout>
 
         <TextView
-            android:id="@+id/tv_loading"
+            android:id="@id/tv_loading"
             android:text="下拉刷新"
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="10dp"

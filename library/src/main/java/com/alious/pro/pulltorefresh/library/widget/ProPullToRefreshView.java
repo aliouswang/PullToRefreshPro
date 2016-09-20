@@ -1,21 +1,24 @@
 package com.alious.pro.pulltorefresh.library.widget;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
+import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.AbsListView;
 import android.widget.FrameLayout;
-import android.widget.Scroller;
+import android.widget.OverScroller;
+import android.widget.TextView;
 
 import com.alious.pro.pulltorefresh.library.R;
 import com.alious.pro.pulltorefresh.library.Utils;
+import com.alious.pro.pulltorefresh.library.interfaces.IPercentView;
 import com.alious.pro.pulltorefresh.library.listener.OnRefreshListener;
 
 /**
@@ -23,11 +26,12 @@ import com.alious.pro.pulltorefresh.library.listener.OnRefreshListener;
  *
  * Created by aliouswang on 16/9/12.
  */
-public abstract class BasePullToRefreshView extends FrameLayout{
+public class ProPullToRefreshView extends FrameLayout{
 
     public static final String TAG = "pull_pro";
 
     private static final int INVALID_POINTER = -1;
+    private static final int DEFAULT_MAX_PULL_DISTANCE = 2000;
 
     public static final String PULL_TO_REFRESH = "下拉刷新";
     public static final String LOOSE_TO_REFRESH = "松开刷新";
@@ -38,6 +42,16 @@ public abstract class BasePullToRefreshView extends FrameLayout{
     public static final int STATE_LOOSE_REFRESH = 0x02;
     public static final int STATE_REFRESHING = 0x03;
     public static final int STATE_RESTORE = 0x04;
+
+    public final String SCROLL_DEFAULT_STYLE;
+    public final String SCROLL_PARALLEL_STYLE;
+
+
+    private Context mContext;
+    private String mScrollStyle;
+    private String mPullRefreshStyle;
+    private int mLoadingLayoutId;
+    private int mMaxPullDistance;
 
     private static final float DEFAULT_PULL_FACTOR = 0.6f;
     private static final int DEFAULT_ANIM_DURATION = 1200;
@@ -50,7 +64,7 @@ public abstract class BasePullToRefreshView extends FrameLayout{
     private OnRefreshListener mOnRefreshListener;
 
     protected View mPullLoadingView;
-    private Scroller mScroller;
+    private OverScroller mScroller;
 
     private int mScrollDuration = DEFAULT_ANIM_DURATION;
     private float mPullFactor = DEFAULT_PULL_FACTOR;
@@ -61,19 +75,39 @@ public abstract class BasePullToRefreshView extends FrameLayout{
     private float mInitialDownY;
     private boolean mIsBeingDragged;
     private int mActivePointerId = INVALID_POINTER;
+    private float mPullPercent;
 
     private View mTarget;
+    private IPercentView mIPercentView;
+    private TextView tv_loading;
 
-    public BasePullToRefreshView(Context context) {
+    public ProPullToRefreshView(Context context) {
         this(context, null);
     }
 
-    public BasePullToRefreshView(Context context, AttributeSet attrs) {
+    public ProPullToRefreshView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public BasePullToRefreshView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public ProPullToRefreshView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        mContext = context;
+        SCROLL_DEFAULT_STYLE = mContext.getString(R.string.pull_scroll_default_style);
+        SCROLL_PARALLEL_STYLE = mContext.getString(R.string.pull_scroll_parallel_style);
+
+        TypedArray typedArray = context.obtainStyledAttributes(attrs,
+                R.styleable.PullRefreshView, 0, 0);
+        mScrollStyle = typedArray.getString(R.styleable.PullRefreshView_scrollStyle);
+        mPullRefreshStyle = typedArray.getString(R.styleable.PullRefreshView_refreshStyle);
+        mLoadingLayoutId = typedArray.getResourceId(R.styleable.PullRefreshView_loadingLayout, R.layout.layout_default_pull_loading);
+        mMaxPullDistance = typedArray.getDimensionPixelSize(R.styleable.PullRefreshView_maxPullDistance, DEFAULT_MAX_PULL_DISTANCE);
+        typedArray.recycle();
+        if (TextUtils.isEmpty(mScrollStyle)) {
+            mScrollStyle = context.getString(R.string.pull_scroll_default_style);
+        }
+        if (TextUtils.isEmpty(mPullRefreshStyle)) {
+            mPullRefreshStyle = context.getString(R.string.pull_refresh_default_style);
+        }
         initView();
     }
 
@@ -81,11 +115,25 @@ public abstract class BasePullToRefreshView extends FrameLayout{
         mTouchSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
         mPullDistance = Utils.dipToPx(getContext(), getPullRefreshDistance());
         setBackgroundColor(ContextCompat.getColor(getContext(), R.color.colorGray));
-        mScroller = new Scroller(getContext());
+        mScroller = new OverScroller(getContext());
         mPullLoadingView = LayoutInflater.from(getContext())
-                .inflate(getInflateLayout(), this, false);
+                .inflate(mLoadingLayoutId, this, false);
         mPullLoadingView.setId(R.id.pull_refresh_loading_id);
         this.addView(mPullLoadingView);
+        mIPercentView = (IPercentView) mPullLoadingView.findViewById(R.id.loading_view);
+        tv_loading = (TextView) mPullLoadingView.findViewById(R.id.tv_loading);
+
+        setOnRefreshListener(new OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                tv_loading.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        setRefresh(false);
+                    }
+                }, 4000);
+            }
+        });
     }
 
     public OnRefreshListener getOnRefreshListener() {
@@ -95,8 +143,6 @@ public abstract class BasePullToRefreshView extends FrameLayout{
     public void setOnRefreshListener(OnRefreshListener onRefreshListener) {
         mOnRefreshListener = onRefreshListener;
     }
-
-    protected abstract int getInflateLayout();
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
@@ -189,6 +235,9 @@ public abstract class BasePullToRefreshView extends FrameLayout{
                 if (mLastScrollY == 0f) {
                     mLastScrollY = curY;
                 }
+                if (Math.abs(getScrollY()) > mMaxPullDistance) {
+                    break;
+                }
                 scrollBy(0, (int) ((mLastScrollY - curY) * mPullFactor));
                 mLastScrollY = curY;
                 float percent = Math.abs((float)getScrollY() / mPullDistance);
@@ -203,7 +252,8 @@ public abstract class BasePullToRefreshView extends FrameLayout{
                     }
                     mCurrentState = STATE_PULL_DOWN;
                 }
-                onPullYPercent(Math.min(percent, 1.0f));
+                mPullPercent = Math.min(percent, 1.0f);
+                onPullYPercent(mPullPercent);
                 break;
             case MotionEvent.ACTION_UP:
                 mLastScrollY = 0f;
@@ -242,32 +292,36 @@ public abstract class BasePullToRefreshView extends FrameLayout{
     }
 
     protected void onRestore() {
-
+        mIPercentView.setRefreshing(false);
+        tv_loading.setText(ProPullToRefreshView.PULL_TO_REFRESH);
     }
 
     protected void onPullYPercent(float yDistance) {
-
+        mIPercentView.setPercent(yDistance);
     }
 
     /**
      * on pull down, prepare for refresh
      */
     protected void onPullDown() {
-        Log.e(TAG, "onPullDown");
+        tv_loading.setText(ProPullToRefreshView.PULL_TO_REFRESH);
+        mIPercentView.setRefreshing(false);
     }
 
     /**
      * on pull finished, loose to refresh
      */
     protected void onLooseRefresh() {
-        Log.e(TAG, "onLooseRefresh");
+        tv_loading.setText(ProPullToRefreshView.LOOSE_TO_REFRESH);
+        mIPercentView.onLooseRefresh();
     }
 
     /**
      * onRefresh ing.
      */
     protected void onRefreshing() {
-
+        tv_loading.setText(ProPullToRefreshView.REFRESHING);
+        mIPercentView.setRefreshing(true);
     }
 
     /**
@@ -298,7 +352,14 @@ public abstract class BasePullToRefreshView extends FrameLayout{
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
-        mPullLoadingView.layout(l, -mPullLoadingView.getMeasuredHeight(), r, 0);
+
+        if (SCROLL_DEFAULT_STYLE.equals(mScrollStyle)) {
+            mPullLoadingView.layout(l, -mPullLoadingView.getMeasuredHeight(), r, 0);
+        }else if (SCROLL_PARALLEL_STYLE.equals(mScrollStyle)) {
+            mPullLoadingView.layout(l, (int) (-mPullLoadingView.getMeasuredHeight() + Utils.dipToPx(mContext, 40)
+                                - mPullPercent * Utils.dipToPx(mContext, 40)), r, 0);
+        }
+
     }
 
     @Override
@@ -306,10 +367,13 @@ public abstract class BasePullToRefreshView extends FrameLayout{
         super.computeScroll();
         if (mScroller.computeScrollOffset()) {
             scrollTo(mScroller.getCurrX(), mScroller.getCurrY());
+            float percent = Math.abs((float)getScrollY() / mPullDistance);
+            mPullPercent = Math.min(percent, 1.0f);
             invalidate();
         }else {
             if (mCurrentState == STATE_PULL_DOWN) {
                 onRestore();
+                mPullPercent = 0;
             }
         }
     }
