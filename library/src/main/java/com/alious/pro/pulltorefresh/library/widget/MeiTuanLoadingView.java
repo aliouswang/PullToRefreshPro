@@ -19,6 +19,12 @@ import com.alious.pro.pulltorefresh.library.interfaces.IPercentView;
  */
 public class MeiTuanLoadingView extends View implements IPercentView{
 
+    private static final int STATE_PULL = 0x01;
+    private static final int STATE_PULL_ANIM = 0x02;
+    private static final int STATE_REFRESHING = 0x03;
+
+    private int mState = STATE_PULL;
+
     private Context mContext;
     private Paint mBitmapPaint;
 
@@ -28,6 +34,8 @@ public class MeiTuanLoadingView extends View implements IPercentView{
     private BitmapManager mBitmapManager;
 
     private float mPercent;
+    private int mAnimIndex;
+    private int mRefreshIndex;
 
     public MeiTuanLoadingView(Context context) {
         this(context, null);
@@ -56,7 +64,10 @@ public class MeiTuanLoadingView extends View implements IPercentView{
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         ensureBounds(widthMeasureSpec);
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        int width = MeasureSpec.getSize(widthMeasureSpec);
+        int height = (int) (width * 107f/ 82f);
+//        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        setMeasuredDimension(width, height);
     }
 
     private void ensureBounds(int widthMeasureSpec) {
@@ -88,8 +99,24 @@ public class MeiTuanLoadingView extends View implements IPercentView{
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        canvas.drawBitmap(mBitmapManager.mPullBitmap,
-                null, getPercentRect(), mBitmapPaint);
+        switch (mState) {
+            case STATE_PULL:
+                canvas.drawBitmap(mBitmapManager.mPullBitmap,
+                        null, getPercentRect(), mBitmapPaint);
+                break;
+            case STATE_PULL_ANIM:
+                int index = mAnimIndex++ / 6;
+                canvas.drawBitmap(mBitmapManager.mPullEndBitmaps[Math.min(index, 4)],
+                        null, mDrawBounds, mBitmapPaint);
+                invalidate();
+                break;
+            case STATE_REFRESHING:
+                index = mRefreshIndex++ / 6;
+                canvas.drawBitmap(mBitmapManager.mRefreshingBitmaps[index % 7],
+                        null, mDrawBounds, mBitmapPaint);
+                invalidate();
+                break;
+        }
     }
 
     @Override
@@ -110,12 +137,22 @@ public class MeiTuanLoadingView extends View implements IPercentView{
 
     @Override
     public void setRefreshing(boolean bRefresh) {
-
+        if (bRefresh) {
+            mState = STATE_REFRESHING;
+        }else {
+            mState = STATE_PULL;
+            mAnimIndex = 0;
+        }
     }
 
     @Override
     public boolean isRefreshing() {
-        return false;
+        return mState == STATE_REFRESHING;
+    }
+
+    @Override
+    public void onLooseRefresh() {
+        mState = STATE_PULL_ANIM;
     }
 
     private class BitmapManager {

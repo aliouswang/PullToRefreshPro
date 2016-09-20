@@ -13,6 +13,8 @@ import com.alious.pro.pulltorefresh.library.interfaces.IPercentView;
  */
 public class MeiTuanPullToRefreshView extends PercentPullToRefreshView{
 
+    private MeiTuanLoadingView mMeiTuanLoadingView;
+
     public MeiTuanPullToRefreshView(Context context) {
         super(context);
     }
@@ -32,6 +34,9 @@ public class MeiTuanPullToRefreshView extends PercentPullToRefreshView{
 
     @Override
     protected IPercentView getPercentView() {
-        return (IPercentView) mPullLoadingView.findViewById(R.id.meituan_loading);
+        if (mMeiTuanLoadingView == null) {
+            mMeiTuanLoadingView = (MeiTuanLoadingView) mPullLoadingView.findViewById(R.id.meituan_loading);
+        }
+        return mMeiTuanLoadingView;
     }
 }

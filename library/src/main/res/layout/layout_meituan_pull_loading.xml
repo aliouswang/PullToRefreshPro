@@ -33,7 +33,7 @@
             <com.alious.pro.pulltorefresh.library.widget.MeiTuanLoadingView
                 android:id="@+id/meituan_loading"
                 android:layout_width="40dp"
-                android:layout_height="40dp"/>
+                android:layout_height="wrap_content"/>
         </RelativeLayout>
 
         <TextView

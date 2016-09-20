@@ -45,7 +45,7 @@ public abstract class PercentPullToRefreshView extends BasePullToRefreshView{
                     public void run() {
                         setRefresh(false);
                     }
-                }, 2000);
+                }, 4000);
             }
         });
     }
@@ -76,6 +76,7 @@ public abstract class PercentPullToRefreshView extends BasePullToRefreshView{
         super.onRefreshing();
         mIPercentView.setRefreshing(true);
         tv_loading.setText(BasePullToRefreshView.REFRESHING);
+        mIPercentView.setRefreshing(true);
     }
 
     @Override
@@ -89,11 +90,13 @@ public abstract class PercentPullToRefreshView extends BasePullToRefreshView{
     protected void onPullDown() {
         super.onPullDown();
         tv_loading.setText(BasePullToRefreshView.PULL_TO_REFRESH);
+        mIPercentView.setRefreshing(false);
     }
 
     @Override
     protected void onLooseRefresh() {
         super.onLooseRefresh();
         tv_loading.setText(BasePullToRefreshView.LOOSE_TO_REFRESH);
+        mIPercentView.onLooseRefresh();
     }
 }

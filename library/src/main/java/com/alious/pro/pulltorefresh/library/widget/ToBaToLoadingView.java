@@ -155,6 +155,11 @@ public class ToBaToLoadingView extends View implements IPercentView{
     }
 
     @Override
+    public void onLooseRefresh() {
+
+    }
+
+    @Override
     public void setPercent(float percent) {
         this.percent = percent;
         endAngel = (int) (360 * percent);
