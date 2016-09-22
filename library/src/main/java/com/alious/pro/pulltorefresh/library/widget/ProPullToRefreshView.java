@@ -137,7 +137,7 @@ public class ProPullToRefreshView extends FrameLayout{
                     public void run() {
                         setRefresh(false);
                     }
-                }, 4000);
+                }, 8000);
             }
         });
     }

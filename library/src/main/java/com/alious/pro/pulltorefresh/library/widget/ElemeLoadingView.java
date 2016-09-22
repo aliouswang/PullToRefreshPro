@@ -14,6 +14,8 @@ import com.alious.pro.pulltorefresh.library.R;
 import com.alious.pro.pulltorefresh.library.Utils;
 import com.alious.pro.pulltorefresh.library.interfaces.IPercentView;
 
+import java.util.ArrayList;
+
 /**
  * Eleme loading view.
  *
@@ -25,6 +27,9 @@ public class ElemeLoadingView extends View implements IPercentView{
     private static final int STATE_PULL = 0x01;
     private static final int STATE_PULL_ANIM = 0x02;
     private static final int STATE_REFRESHING = 0x03;
+
+    private static final int SPRINT_SIDE_LEFT = 0x01;
+    private static final int SPRINT_SIDE_RIGHT = 0X02;
 
     private int mState = STATE_PULL;
 
@@ -44,7 +49,7 @@ public class ElemeLoadingView extends View implements IPercentView{
     private float mSprintWidth;
     private float mSprintRadius;
 
-    private float mSprintDegree;
+    private float mSpringIndex;
 
     public ElemeLoadingView(Context context) {
         this(context, null);
@@ -128,6 +133,10 @@ public class ElemeLoadingView extends View implements IPercentView{
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
+        if (mState == STATE_REFRESHING) {
+            drawSprints(canvas);
+        }
+
         canvas.drawBitmap(mBitmapManager.bitmapBottom,
                 null, mBottomRectF, mPaint);
 
@@ -146,25 +155,82 @@ public class ElemeLoadingView extends View implements IPercentView{
         canvas.drawBitmap(mBitmapManager.bitmapLogo,
                 null, mLogoRectF, mPaint);
 
-        if (mState == STATE_REFRESHING) {
-            drawSprints(canvas);
-        }
+
     }
 
     private void drawSprints(Canvas canvas) {
-        RectF newRectF = new RectF();
-        newRectF.top = (float) (mSprintRectF.top - mSprintRadius * Math.sin(mSprintDegree));
-        newRectF.bottom = newRectF.top + mSprintRectF.height();
-        newRectF.left = (float) (mSprintRectF.left + (mSprintRadius - mSprintRadius * Math.cos(mSprintDegree)));
-        newRectF.right = newRectF.left + mSprintRectF.width();
-        canvas.drawBitmap(mBitmapManager.bitmapFlower,
-                null, newRectF, mPaint);
-        mSprintDegree += 0.1F;
-        if (mSprintDegree >= Math.PI) {
-            mSprintDegree = 0;
+        int sprintSize = mSprints.size();
+        if (sprintSize < 1) {
+            Sprint sprint = new Sprint(SPRINT_SIDE_LEFT, mBitmapManager.bitmapFlower);
+            mSprints.add(sprint);
+        }else if (sprintSize < 2) {
+            if (mSpringIndex > 20) {
+                Sprint sprint = new Sprint(SPRINT_SIDE_RIGHT, mBitmapManager.bitmapChiken);
+                mSprints.add(sprint);
+            }
+        }else if (sprintSize < 3) {
+            if (mSpringIndex > 40) {
+                Sprint sprint = new Sprint(SPRINT_SIDE_LEFT, mBitmapManager.bitmapBlue);
+                mSprints.add(sprint);
+            }
+        }else if (sprintSize < 4) {
+            if (mSpringIndex > 60) {
+                Sprint sprint = new Sprint(SPRINT_SIDE_RIGHT, mBitmapManager.bitmapHanm);
+                mSprints.add(sprint);
+            }
+        }else if (sprintSize < 5) {
+            if (mSpringIndex > 80) {
+                Sprint sprint = new Sprint(SPRINT_SIDE_LEFT, mBitmapManager.bitmapOrange);
+                mSprints.add(sprint);
+            }
+        }else if (sprintSize < 6) {
+            if (mSpringIndex > 100) {
+                Sprint sprint = new Sprint(SPRINT_SIDE_RIGHT, mBitmapManager.bitmapPear);
+                mSprints.add(sprint);
+            }
         }
+
+        for (Sprint sprint : mSprints) {
+            sprint.drawSelf(canvas);
+        }
+
+        mSpringIndex ++;
         invalidate();
     }
+
+    private ArrayList<Sprint> mSprints = new ArrayList<>();
+
+    private class Sprint {
+
+        private float degree;
+        private int side;
+        private Bitmap mBitmap;
+
+        public Sprint(int side, Bitmap bitmap) {
+            this.side = side;
+            this.mBitmap = bitmap;
+        }
+
+        public void drawSelf(Canvas canvas) {
+            RectF newRectF = new RectF();
+            newRectF.top = (float) (mSprintRectF.top - mSprintRadius * Math.sin(degree));
+            newRectF.bottom = newRectF.top + mSprintRectF.height();
+            if (this.side == SPRINT_SIDE_RIGHT) {
+                newRectF.left = (float) (mSprintRectF.left + (mSprintRadius - mSprintRadius * Math.cos(degree)));
+            }else {
+                newRectF.left = (float) (mSprintRectF.left - (mSprintRadius - mSprintRadius * Math.cos(degree)));
+            }
+            newRectF.right = newRectF.left + mSprintRectF.width();
+            canvas.drawBitmap(mBitmap,
+                    null, newRectF, mPaint);
+            degree += Math.PI/ 60.0f;
+            if (degree >= Math.PI) {
+                degree = 0;
+            }
+        }
+    }
+
+
 
     @Override
     public void setPercent(float percent) {
@@ -179,7 +245,8 @@ public class ElemeLoadingView extends View implements IPercentView{
             invalidate();
         }else {
             mState = STATE_PULL;
-            mSprintDegree = 0;
+            mSpringIndex = 0;
+            mSprints.clear();
         }
     }
 
