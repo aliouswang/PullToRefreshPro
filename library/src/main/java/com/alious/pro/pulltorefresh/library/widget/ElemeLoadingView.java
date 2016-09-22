@@ -80,6 +80,10 @@ public class ElemeLoadingView extends View implements IPercentView{
                     resources, R.drawable.ele_logo);
             bitmapLeftHand = BitmapFactory.decodeResource(
                     resources, R.drawable.ele_left_hand);
+            bitmapRightHand = BitmapFactory.decodeResource(
+                    resources, R.drawable.ele_right_hand
+            );
+            bitmap
         }
 
 
