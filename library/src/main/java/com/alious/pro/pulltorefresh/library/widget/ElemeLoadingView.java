@@ -22,6 +22,12 @@ import com.alious.pro.pulltorefresh.library.interfaces.IPercentView;
 
 public class ElemeLoadingView extends View implements IPercentView{
 
+    private static final int STATE_PULL = 0x01;
+    private static final int STATE_PULL_ANIM = 0x02;
+    private static final int STATE_REFRESHING = 0x03;
+
+    private int mState = STATE_PULL;
+
     private Context mContext;
     private BitmapManager mBitmapManager;
     private Paint mPaint;
@@ -32,7 +38,13 @@ public class ElemeLoadingView extends View implements IPercentView{
     private RectF mLeftHandRectF;
     private RectF mRightHandRectF;
 
+    private RectF mSprintRectF;
+
     private int mRotateDegree;
+    private float mSprintWidth;
+    private float mSprintRadius;
+
+    private float mSprintDegree;
 
     public ElemeLoadingView(Context context) {
         this(context, null);
@@ -46,6 +58,8 @@ public class ElemeLoadingView extends View implements IPercentView{
         super(context, attrs, defStyleAttr);
         mContext = context;
         mBitmapManager = new BitmapManager();
+        mSprintWidth = Utils.dipToPx(mContext, 30);
+        mSprintRadius = Utils.dipToPx(mContext,30);
         initView();
     }
 
@@ -76,7 +90,7 @@ public class ElemeLoadingView extends View implements IPercentView{
         float logoWidth = Utils.dipToPx(mContext, 30);
         float handWidth = Utils.dipToPx(mContext, 6);
         float handHeight = Utils.dipToPx(mContext, 20);
-        float padding = Utils.dipToPx(mContext, 30);
+        float padding = Utils.dipToPx(mContext, 60);
 
         mLogoRectF = new RectF();
         mLogoRectF.left = mTotalBound.centerX() - logoWidth/2;
@@ -102,6 +116,12 @@ public class ElemeLoadingView extends View implements IPercentView{
         mRightHandRectF.right = mLogoRectF.right;
         mRightHandRectF.top = mLogoRectF.top - handHeight + handHeight/10;
         mRightHandRectF.bottom = mLogoRectF.top + handHeight/10;
+
+        mSprintRectF = new RectF();
+        mSprintRectF.left = mLogoRectF.centerX() - mSprintWidth/ 2;
+        mSprintRectF.right = mLogoRectF.centerX() + mSprintWidth/ 2;
+        mSprintRectF.top = mLogoRectF.top - mSprintWidth/ 2;
+        mSprintRectF.bottom = mLogoRectF.top + mSprintWidth/ 2;
     }
 
     @Override
@@ -125,6 +145,25 @@ public class ElemeLoadingView extends View implements IPercentView{
 
         canvas.drawBitmap(mBitmapManager.bitmapLogo,
                 null, mLogoRectF, mPaint);
+
+        if (mState == STATE_REFRESHING) {
+            drawSprints(canvas);
+        }
+    }
+
+    private void drawSprints(Canvas canvas) {
+        RectF newRectF = new RectF();
+        newRectF.top = (float) (mSprintRectF.top - mSprintRadius * Math.sin(mSprintDegree));
+        newRectF.bottom = newRectF.top + mSprintRectF.height();
+        newRectF.left = (float) (mSprintRectF.left + (mSprintRadius - mSprintRadius * Math.cos(mSprintDegree)));
+        newRectF.right = newRectF.left + mSprintRectF.width();
+        canvas.drawBitmap(mBitmapManager.bitmapFlower,
+                null, newRectF, mPaint);
+        mSprintDegree += 0.1F;
+        if (mSprintDegree >= Math.PI) {
+            mSprintDegree = 0;
+        }
+        invalidate();
     }
 
     @Override
@@ -135,7 +174,13 @@ public class ElemeLoadingView extends View implements IPercentView{
 
     @Override
     public void setRefreshing(boolean bRefresh) {
-
+        if (bRefresh) {
+            mState = STATE_REFRESHING;
+            invalidate();
+        }else {
+            mState = STATE_PULL;
+            mSprintDegree = 0;
+        }
     }
 
     @Override
@@ -145,7 +190,7 @@ public class ElemeLoadingView extends View implements IPercentView{
 
     @Override
     public void onLooseRefresh() {
-
+        mState = STATE_PULL_ANIM;
     }
 
     private class BitmapManager {
@@ -186,19 +231,19 @@ public class ElemeLoadingView extends View implements IPercentView{
             bitmapBlue = BitmapFactory.decodeResource(
                     resources, R.drawable.ele_blue
             );
-            bitmapBlue = BitmapFactory.decodeResource(
+            bitmapChiken = BitmapFactory.decodeResource(
                     resources, R.drawable.ele_chicken
             );
-            bitmapBlue = BitmapFactory.decodeResource(
+            bitmapFlower = BitmapFactory.decodeResource(
                     resources, R.drawable.ele_flower
             );
-            bitmapBlue = BitmapFactory.decodeResource(
+            bitmapHanm = BitmapFactory.decodeResource(
                     resources, R.drawable.ele_hanm
             );
-            bitmapBlue = BitmapFactory.decodeResource(
+            bitmapOrange = BitmapFactory.decodeResource(
                     resources, R.drawable.ele_orange
             );
-            bitmapBlue = BitmapFactory.decodeResource(
+            bitmapPear = BitmapFactory.decodeResource(
                     resources, R.drawable.ele_pear
             );
         }

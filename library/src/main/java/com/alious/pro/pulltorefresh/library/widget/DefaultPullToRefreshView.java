@@ -52,7 +52,7 @@ public class DefaultPullToRefreshView extends ProPullToRefreshView {
                     public void run() {
                         setRefresh(false);
                     }
-                }, 2000);
+                }, 6000);
             }
         });
     }
