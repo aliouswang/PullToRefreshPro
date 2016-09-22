@@ -37,6 +37,7 @@ public class MeiTuanLoadingView extends View implements IPercentView{
     private int mAnimIndex;
     private int mRefreshIndex;
 
+
     public MeiTuanLoadingView(Context context) {
         this(context, null);
     }

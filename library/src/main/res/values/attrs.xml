@@ -6,6 +6,8 @@
         <attr name="refreshStyle" format="string"/>
         <attr name="maxPullDistance" format="dimension"/>
         <attr name="loadingLayout" format="integer"/>
+        <attr name="refreshingHeight" format="dimension"/>
+        <attr name="pullDistance" format="dimension"/>
     </declare-styleable>
 
 </resources>

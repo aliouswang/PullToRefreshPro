@@ -32,6 +32,7 @@ public class ProPullToRefreshView extends FrameLayout{
 
     private static final int INVALID_POINTER = -1;
     private static final int DEFAULT_MAX_PULL_DISTANCE = 2000;
+    private static final int DEFAULT_REFRESHING_HEIGHT = 200;
 
     public static final String PULL_TO_REFRESH = "下拉刷新";
     public static final String LOOSE_TO_REFRESH = "松开刷新";
@@ -52,6 +53,7 @@ public class ProPullToRefreshView extends FrameLayout{
     private String mPullRefreshStyle;
     private int mLoadingLayoutId;
     private int mMaxPullDistance;
+    private int mRefreshingBarHeight;
 
     private static final float DEFAULT_PULL_FACTOR = 0.6f;
     private static final int DEFAULT_ANIM_DURATION = 1200;
@@ -101,6 +103,10 @@ public class ProPullToRefreshView extends FrameLayout{
         mPullRefreshStyle = typedArray.getString(R.styleable.PullRefreshView_refreshStyle);
         mLoadingLayoutId = typedArray.getResourceId(R.styleable.PullRefreshView_loadingLayout, R.layout.layout_default_pull_loading);
         mMaxPullDistance = typedArray.getDimensionPixelSize(R.styleable.PullRefreshView_maxPullDistance, DEFAULT_MAX_PULL_DISTANCE);
+        mRefreshingBarHeight = typedArray.getDimensionPixelSize(R.styleable.PullRefreshView_refreshingHeight,
+                DEFAULT_REFRESHING_HEIGHT);
+        mPullDistance = typedArray.getDimensionPixelSize(R.styleable.PullRefreshView_pullDistance,
+                Utils.dipToPx(mContext, DEFAULT_PULL_DISTANCE));
         typedArray.recycle();
         if (TextUtils.isEmpty(mScrollStyle)) {
             mScrollStyle = context.getString(R.string.pull_scroll_default_style);
@@ -113,7 +119,7 @@ public class ProPullToRefreshView extends FrameLayout{
 
     protected void initView() {
         mTouchSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
-        mPullDistance = Utils.dipToPx(getContext(), getPullRefreshDistance());
+
         setBackgroundColor(ContextCompat.getColor(getContext(), R.color.colorGray));
         mScroller = new OverScroller(getContext());
         mPullLoadingView = LayoutInflater.from(getContext())
@@ -272,7 +278,7 @@ public class ProPullToRefreshView extends FrameLayout{
         mScroller.startScroll(0,
                 getScrollY(),
                 0,
-                -getScrollY() - Utils.dipToPx(getContext(), getRefreshBarHeight()),
+                -getScrollY() - mRefreshingBarHeight,
                 mScrollDuration);
         onRefreshing();
         if (mOnRefreshListener != null) {
@@ -335,18 +341,18 @@ public class ProPullToRefreshView extends FrameLayout{
         }
     }
 
-    /**
-     * get refresh bar height
-     *
-     * @return
-     */
-    protected int getRefreshBarHeight() {
-        return 60;
-    }
+//    /**
+//     * get refresh bar height
+//     *
+//     * @return
+//     */
+//    protected int getRefreshBarHeight() {
+//        return 60;
+//    }
 
-    protected int getPullRefreshDistance() {
-        return DEFAULT_PULL_DISTANCE;
-    }
+//    protected int getPullRefreshDistance() {
+//        return DEFAULT_PULL_DISTANCE;
+//    }
 
 
     @Override
