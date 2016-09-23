@@ -12,7 +12,7 @@
         app:maxPullDistance="200dp"
         app:loadingLayout="@layout/layout_ele_pull_loading"
         app:refreshingHeight="100dp"
-        app:pullDistance="150dp"
+        app:pullDistance="130dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 

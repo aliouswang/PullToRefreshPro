@@ -43,6 +43,7 @@ public class ProPullToRefreshView extends FrameLayout{
     public static final int STATE_LOOSE_REFRESH = 0x02;
     public static final int STATE_REFRESHING = 0x03;
     public static final int STATE_RESTORE = 0x04;
+    public static final int STATE_PRE_REFRESHING_RESTORE = 0x05;
 
     public final String SCROLL_DEFAULT_STYLE;
     public final String SCROLL_PARALLEL_STYLE;
@@ -56,7 +57,8 @@ public class ProPullToRefreshView extends FrameLayout{
     private int mRefreshingBarHeight;
 
     private static final float DEFAULT_PULL_FACTOR = 0.6f;
-    private static final int DEFAULT_ANIM_DURATION = 1200;
+    private static final int DEFAULT_ANIM_DURATION = 1000;
+    private static final int DEFAULT_REFRESH_RESTORE_DURATION = 400;
 
     //dip
     private static final int DEFAULT_PULL_DISTANCE = 80;
@@ -274,21 +276,17 @@ public class ProPullToRefreshView extends FrameLayout{
     }
 
     private void scrollToRefresh() {
-        mCurrentState = STATE_REFRESHING;
+        mCurrentState = STATE_PRE_REFRESHING_RESTORE;
         mScroller.startScroll(0,
                 getScrollY(),
                 0,
                 -getScrollY() - mRefreshingBarHeight,
-                mScrollDuration);
-        onRefreshing();
-        if (mOnRefreshListener != null) {
-            mOnRefreshListener.onRefresh();
-        }
+                DEFAULT_REFRESH_RESTORE_DURATION);
         invalidate();
     }
 
     private void scrollToRestore() {
-        mCurrentState = STATE_PULL_DOWN;
+        mCurrentState = STATE_RESTORE;
         mScroller.startScroll(0,
                 getScrollY(),
                 0,
@@ -321,6 +319,10 @@ public class ProPullToRefreshView extends FrameLayout{
         tv_loading.setText(ProPullToRefreshView.LOOSE_TO_REFRESH);
         mIPercentView.onLooseRefresh();
     }
+//
+//    protected void onPreRefreshRestore(float yDistance) {
+//        onPullYPercent(yDistance);
+//    }
 
     /**
      * onRefresh ing.
@@ -375,9 +377,21 @@ public class ProPullToRefreshView extends FrameLayout{
             scrollTo(mScroller.getCurrX(), mScroller.getCurrY());
             float percent = Math.abs((float)getScrollY() / mPullDistance);
             mPullPercent = Math.min(percent, 1.0f);
+            mIPercentView.setPercent(mPullPercent);
             invalidate();
         }else {
-            if (mCurrentState == STATE_PULL_DOWN) {
+            if (mCurrentState == STATE_PRE_REFRESHING_RESTORE) {
+                mCurrentState = STATE_REFRESHING;
+                onRefreshing();
+                if (mOnRefreshListener != null) {
+                    mOnRefreshListener.onRefresh();
+                }
+                invalidate();
+            }else if (mCurrentState == STATE_RESTORE) {
+                onRestore();
+                mPullPercent = 0;
+            }
+            else if (mCurrentState == STATE_PULL_DOWN) {
                 onRestore();
                 mPullPercent = 0;
             }

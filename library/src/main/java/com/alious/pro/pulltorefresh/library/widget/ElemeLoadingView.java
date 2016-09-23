@@ -84,7 +84,6 @@ public class ElemeLoadingView extends View implements IPercentView{
     private void ensureBounds(int widthMeasureSpec) {
         int width = MeasureSpec.getSize(widthMeasureSpec);
         int height = width;
-        int pullHeight = (int)(width * 60f/82f);
 
         mTotalBound = new RectF();
         mTotalBound.left = 0;
@@ -92,7 +91,7 @@ public class ElemeLoadingView extends View implements IPercentView{
         mTotalBound.right = width;
         mTotalBound.bottom = height;
 
-        float logoWidth = Utils.dipToPx(mContext, 35);
+        float logoWidth = Utils.dipToPx(mContext, 40);
         float handWidth = Utils.dipToPx(mContext, 4);
         float handHeight = Utils.dipToPx(mContext, 20);
         float padding = Utils.dipToPx(mContext, 50);
@@ -141,14 +140,14 @@ public class ElemeLoadingView extends View implements IPercentView{
                 null, mBottomRectF, mPaint);
 
         if (mState == STATE_REFRESHING) {
-            int index = mSpringIndex % 16;
+            int index = mSpringIndex % 24;
             RectF newLogoRect = new RectF();
             newLogoRect.left = mLogoRectF.left;
             newLogoRect.right = mLogoRectF.right;
-            if (index < 16) {
-                newLogoRect.top = mLogoRectF.top + Utils.dipToPx(mContext, index / 4.0f);
+            if (index < 24) {
+                newLogoRect.top = mLogoRectF.top + Utils.dipToPx(mContext, index / 8.0f);
             }else {
-                newLogoRect.top = mLogoRectF.top + Utils.dipToPx(mContext, 4.0f - index / 4.0f);
+                newLogoRect.top = mLogoRectF.top + Utils.dipToPx(mContext, 3.0f - index / 8.0f);
             }
             newLogoRect.bottom = mLogoRectF.bottom;
 
@@ -156,10 +155,10 @@ public class ElemeLoadingView extends View implements IPercentView{
                     null, newLogoRect, mPaint);
 
             canvas.save();
-            if (index < 16) {
-                canvas.translate(0, Utils.dipToPx(mContext, index / 4.0f));
+            if (index < 24) {
+                canvas.translate(0, Utils.dipToPx(mContext, index / 8.0f));
             }else {
-                canvas.translate(0, Utils.dipToPx(mContext, 4.0f - index / 4.0f));
+                canvas.translate(0, Utils.dipToPx(mContext, 3.0f - index / 8.0f));
             }
 
             canvas.rotate(-mRotateDegree, mLeftHandRectF.centerX(), mLeftHandRectF.bottom);
@@ -168,10 +167,10 @@ public class ElemeLoadingView extends View implements IPercentView{
             canvas.restore();
 
             canvas.save();
-            if (index < 16) {
-                canvas.translate(0, Utils.dipToPx(mContext, index / 4.0f));
+            if (index < 24) {
+                canvas.translate(0, Utils.dipToPx(mContext, index / 8.0f));
             }else {
-                canvas.translate(0, Utils.dipToPx(mContext, 4.0f - index / 4.0f));
+                canvas.translate(0, Utils.dipToPx(mContext, 3.0f - index / 8.0f));
             }
 
             canvas.rotate(mRotateDegree, mRightHandRectF.centerX(), mRightHandRectF.bottom);
@@ -273,7 +272,7 @@ public class ElemeLoadingView extends View implements IPercentView{
 
     @Override
     public void setPercent(float percent) {
-        mRotateDegree = (int) (percent * 150.0f);
+        mRotateDegree = (int) (percent * 160.0f);
         invalidate();
     }
 
