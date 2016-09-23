@@ -49,7 +49,7 @@ public class ElemeLoadingView extends View implements IPercentView{
     private float mSprintWidth;
     private float mSprintRadius;
 
-    private float mSpringIndex;
+    private int mSpringIndex;
 
     public ElemeLoadingView(Context context) {
         this(context, null);
@@ -64,7 +64,7 @@ public class ElemeLoadingView extends View implements IPercentView{
         mContext = context;
         mBitmapManager = new BitmapManager();
         mSprintWidth = Utils.dipToPx(mContext, 30);
-        mSprintRadius = Utils.dipToPx(mContext,30);
+        mSprintRadius = Utils.dipToPx(mContext,25);
         initView();
     }
 
@@ -92,22 +92,22 @@ public class ElemeLoadingView extends View implements IPercentView{
         mTotalBound.right = width;
         mTotalBound.bottom = height;
 
-        float logoWidth = Utils.dipToPx(mContext, 30);
-        float handWidth = Utils.dipToPx(mContext, 6);
+        float logoWidth = Utils.dipToPx(mContext, 35);
+        float handWidth = Utils.dipToPx(mContext, 4);
         float handHeight = Utils.dipToPx(mContext, 20);
-        float padding = Utils.dipToPx(mContext, 60);
+        float padding = Utils.dipToPx(mContext, 50);
 
         mLogoRectF = new RectF();
         mLogoRectF.left = mTotalBound.centerX() - logoWidth/2;
         mLogoRectF.right = mTotalBound.centerX() + logoWidth/2;
-        mLogoRectF.top = mTotalBound.bottom - padding - logoWidth;
+        mLogoRectF.top = mTotalBound.bottom - padding - logoWidth * 4 / 5;
         mLogoRectF.bottom = mTotalBound.bottom - padding;
 
         mBottomRectF = new RectF();
         mBottomRectF.left = mLogoRectF.left - logoWidth/5;
         mBottomRectF.right = mLogoRectF.right + logoWidth/5;
-        mBottomRectF.top = mLogoRectF.bottom - logoWidth/10;
-        mBottomRectF.bottom = mLogoRectF.bottom + logoWidth/5;
+        mBottomRectF.top = mLogoRectF.bottom - logoWidth/5;
+        mBottomRectF.bottom = mLogoRectF.bottom + logoWidth/10;
 
         mLeftHandRectF = new RectF();
         mLeftHandRectF.left = mLogoRectF.left;
@@ -140,23 +140,62 @@ public class ElemeLoadingView extends View implements IPercentView{
         canvas.drawBitmap(mBitmapManager.bitmapBottom,
                 null, mBottomRectF, mPaint);
 
-        canvas.save();
-        canvas.rotate(-mRotateDegree, mLeftHandRectF.centerX(), mLeftHandRectF.bottom);
-        canvas.drawBitmap(mBitmapManager.bitmapLeftHand,
-                null, mLeftHandRectF, mPaint);
-        canvas.restore();
+        if (mState == STATE_REFRESHING) {
+            int index = mSpringIndex % 16;
+            RectF newLogoRect = new RectF();
+            newLogoRect.left = mLogoRectF.left;
+            newLogoRect.right = mLogoRectF.right;
+            if (index < 16) {
+                newLogoRect.top = mLogoRectF.top + Utils.dipToPx(mContext, index / 4.0f);
+            }else {
+                newLogoRect.top = mLogoRectF.top + Utils.dipToPx(mContext, 4.0f - index / 4.0f);
+            }
+            newLogoRect.bottom = mLogoRectF.bottom;
 
-        canvas.save();
-        canvas.rotate(mRotateDegree, mRightHandRectF.centerX(), mRightHandRectF.bottom);
-        canvas.drawBitmap(mBitmapManager.bitmapRightHand,
-                null, mRightHandRectF, mPaint);
-        canvas.restore();
+            canvas.drawBitmap(mBitmapManager.bitmapLogo,
+                    null, newLogoRect, mPaint);
 
-        canvas.drawBitmap(mBitmapManager.bitmapLogo,
-                null, mLogoRectF, mPaint);
+            canvas.save();
+            if (index < 16) {
+                canvas.translate(0, Utils.dipToPx(mContext, index / 4.0f));
+            }else {
+                canvas.translate(0, Utils.dipToPx(mContext, 4.0f - index / 4.0f));
+            }
 
+            canvas.rotate(-mRotateDegree, mLeftHandRectF.centerX(), mLeftHandRectF.bottom);
+            canvas.drawBitmap(mBitmapManager.bitmapLeftHand,
+                    null, mLeftHandRectF, mPaint);
+            canvas.restore();
 
+            canvas.save();
+            if (index < 16) {
+                canvas.translate(0, Utils.dipToPx(mContext, index / 4.0f));
+            }else {
+                canvas.translate(0, Utils.dipToPx(mContext, 4.0f - index / 4.0f));
+            }
+
+            canvas.rotate(mRotateDegree, mRightHandRectF.centerX(), mRightHandRectF.bottom);
+            canvas.drawBitmap(mBitmapManager.bitmapRightHand,
+                    null, mRightHandRectF, mPaint);
+            canvas.restore();
+        }else {
+            canvas.drawBitmap(mBitmapManager.bitmapLogo,
+                    null, mLogoRectF, mPaint);
+
+            canvas.save();
+            canvas.rotate(-mRotateDegree, mLeftHandRectF.centerX(), mLeftHandRectF.bottom);
+            canvas.drawBitmap(mBitmapManager.bitmapLeftHand,
+                    null, mLeftHandRectF, mPaint);
+            canvas.restore();
+
+            canvas.save();
+            canvas.rotate(mRotateDegree, mRightHandRectF.centerX(), mRightHandRectF.bottom);
+            canvas.drawBitmap(mBitmapManager.bitmapRightHand,
+                    null, mRightHandRectF, mPaint);
+            canvas.restore();
+        }
     }
+
 
     private void drawSprints(Canvas canvas) {
         int sprintSize = mSprints.size();
@@ -234,7 +273,7 @@ public class ElemeLoadingView extends View implements IPercentView{
 
     @Override
     public void setPercent(float percent) {
-        mRotateDegree = (int) (percent * 90.0f);
+        mRotateDegree = (int) (percent * 150.0f);
         invalidate();
     }
 
