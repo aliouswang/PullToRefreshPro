@@ -28,6 +28,7 @@ public class Spirit implements IDraw{
         this.mDrawRect = rect;
         this.mBitmapResId = resId;
         mPaint = new Paint();
+        mPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
         initParams();
     }
 
@@ -43,5 +44,14 @@ public class Spirit implements IDraw{
     @Override
     public void draw(Canvas canvas) {
         canvas.drawBitmap(mBitmap, null, mDrawRect, mPaint);
+
+    }
+
+    protected void tanslate(Canvas canvas) {
+
+    }
+
+    protected void increace() {
+
     }
 }
