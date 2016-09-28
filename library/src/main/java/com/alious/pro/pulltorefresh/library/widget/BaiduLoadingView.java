@@ -10,7 +10,10 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import com.alious.pro.pulltorefresh.library.R;
+import com.alious.pro.pulltorefresh.library.Utils;
 import com.alious.pro.pulltorefresh.library.interfaces.IPercentView;
+import com.alious.pro.pulltorefresh.library.spirits.RotateSpirit;
+import com.alious.pro.pulltorefresh.library.spirits.Spirit;
 
 /**
  * Baidu loading view
@@ -29,6 +32,16 @@ public class BaiduLoadingView extends View implements IPercentView{
     private Bitmap mBackBitmap;
 
     private RectF mTotalBound;
+
+    private RectF mRiderRect;
+    private RectF mLeftWheelRect;
+    private RectF mRightWheelRect;
+    private RectF mSunRect;
+
+    private Spirit mRiderSpirit;
+    private RotateSpirit mLeftWheelSpirit;
+    private RotateSpirit mRightWheelSpirit;
+    private RotateSpirit mSunSpirit;
 
     public BaiduLoadingView(Context context) {
         this(context, null);
@@ -76,14 +89,31 @@ public class BaiduLoadingView extends View implements IPercentView{
         mTotalBound.left = 0;
         mTotalBound.top = 0;
         mTotalBound.right = width;
-        mTotalBound.bottom = height * 2;
+        mTotalBound.bottom = height;
+
+        float riderWidth = Utils.dipToPx(mContext, 20);
+        mRiderRect = new RectF();
+        mRiderRect.left = mTotalBound.centerX() - riderWidth / 2;
+        mRiderRect.right = mTotalBound.centerX() + riderWidth / 2;
+        mRiderRect.top = mTotalBound.centerY() - riderWidth / 2;
+        mRiderRect.right = mTotalBound.centerY() + riderWidth / 2;
+
+        initSpirits();
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        mRiderSpirit.draw(canvas);
+        invalidate();
+    }
 
-        canvas.drawBitmap();
+    private void initSpirits() {
+        if (mRiderSpirit == null) {
+            mRiderSpirit = new Spirit(mContext, mRiderRect, R.drawable.pull_rider);
+        }else {
+            mRiderSpirit.setDrawRect(mRiderRect);
+        }
     }
 
     @Override

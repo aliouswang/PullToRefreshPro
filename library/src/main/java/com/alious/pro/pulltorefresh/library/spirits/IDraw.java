@@ -8,6 +8,6 @@ import android.graphics.Canvas;
 
 public interface IDraw {
 
-    Spirit draw(Canvas canvas);
+    void draw(Canvas canvas);
 
 }
