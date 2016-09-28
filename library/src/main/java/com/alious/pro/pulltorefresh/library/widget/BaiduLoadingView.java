@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -26,6 +27,8 @@ public class BaiduLoadingView extends View implements IPercentView{
     private Bitmap mWheelBitmap;
     private Bitmap mSunBitmap;
     private Bitmap mBackBitmap;
+
+    private RectF mTotalBound;
 
     public BaiduLoadingView(Context context) {
         this(context, null);
@@ -58,9 +61,29 @@ public class BaiduLoadingView extends View implements IPercentView{
     }
 
     @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        ensureBounds(widthMeasureSpec);
+        int width = MeasureSpec.getSize(widthMeasureSpec);
+        int height = width;
+        setMeasuredDimension(width, height);
+    }
+
+    private void ensureBounds(int widthMeasureSpec) {
+        int width = MeasureSpec.getSize(widthMeasureSpec);
+        int height = width;
+
+        mTotalBound = new RectF();
+        mTotalBound.left = 0;
+        mTotalBound.top = 0;
+        mTotalBound.right = width;
+        mTotalBound.bottom = height * 2;
+    }
+
+    @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
+        canvas.drawBitmap();
     }
 
     @Override
