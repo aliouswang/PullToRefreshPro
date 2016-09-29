@@ -66,4 +66,8 @@ public class TranslateSpirit extends Spirit{
     public void setIncrease(boolean bIncrease) {
         this.bIncrease = bIncrease;
     }
+
+    public void setTranslateDelta(float translateDelta) {
+        mTranslateDelta = translateDelta;
+    }
 }

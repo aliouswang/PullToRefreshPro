@@ -83,13 +83,13 @@ public class BaiduLoadingView extends View implements IPercentView{
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         ensureBounds(widthMeasureSpec, heightMeasureSpec);
         int width = MeasureSpec.getSize(widthMeasureSpec);
-        int height = width;
+        int height = MeasureSpec.getSize(heightMeasureSpec);
         setMeasuredDimension(width, height);
     }
 
     private void ensureBounds(int widthMeasureSpec, int heightMeasureSpec) {
         int width = MeasureSpec.getSize(widthMeasureSpec);
-        int height = width;
+        int height = MeasureSpec.getSize(heightMeasureSpec);
 
         mTotalBound = new RectF();
         mTotalBound.left = 0;
@@ -101,8 +101,8 @@ public class BaiduLoadingView extends View implements IPercentView{
         mRiderRect = new RectF();
         mRiderRect.left = mTotalBound.centerX() - riderWidth / 2;
         mRiderRect.right = mTotalBound.centerX() + riderWidth / 2;
-        mRiderRect.top = mTotalBound.centerY() - riderWidth / 2;
-        mRiderRect.bottom = mTotalBound.centerY() + riderWidth / 2;
+        mRiderRect.top = mTotalBound.bottom - riderWidth - riderWidth / 4;
+        mRiderRect.bottom = mTotalBound.bottom - riderWidth / 4;
 
         float whellWidth = Utils.dipToPx(mContext, 10);
         mLeftWheelRect = new RectF();
@@ -130,11 +130,11 @@ public class BaiduLoadingView extends View implements IPercentView{
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        mBackgroundSpirit.draw(canvas);
         mRiderSpirit.draw(canvas);
         mLeftWheelSpirit.draw(canvas);
         mRightWheelSpirit.draw(canvas);
         mSunSpirit.draw(canvas);
-        mBackgroundSpirit.draw(canvas);
         invalidate();
     }
 
@@ -190,17 +190,13 @@ public class BaiduLoadingView extends View implements IPercentView{
             for (int i = 0; i < 2; i ++) {
                 RectF rectF = new RectF();
                 rectF.left = mTotalBound.left + width * i;
-                rectF.right = mTotalBound.right + width * (i + 1);
-                rectF.top = mRiderRect.bottom - height;
-                rectF.bottom = mRiderRect.bottom;
+                rectF.right = mTotalBound.left + width * (i + 1);
+                rectF.top = mLeftWheelRect.bottom - height;
+                rectF.bottom = mLeftWheelRect.bottom;
                 TranslateSpirit spirit = new TranslateSpirit(mContext, rectF, R.drawable.pull_back);
-                if (i == 0) {
-                    spirit.setStartTranslate(0);
-                    spirit.setEndTranslate(-width);
-                }else {
-                    spirit.setStartTranslate(width);
-                    spirit.setEndTranslate(0);
-                }
+                spirit.setStartTranslate(0);
+                spirit.setEndTranslate(-width);
+                spirit.setTranslateDelta(3.0f);
                 mSpirits.add(spirit);
             }
         }
@@ -211,9 +207,9 @@ public class BaiduLoadingView extends View implements IPercentView{
             for (int i = 0; i < 2; i ++) {
                 RectF rectF = new RectF();
                 rectF.left = mTotalBound.left + width * i;
-                rectF.right = mTotalBound.right + width * (i + 1);
-                rectF.top = mRiderRect.bottom - height;
-                rectF.bottom = mRiderRect.bottom;
+                rectF.right = mTotalBound.left + width * (i + 1);
+                rectF.top = mLeftWheelRect.bottom - height;
+                rectF.bottom = mLeftWheelRect.bottom;
                 mSpirits.get(i).setDrawRect(rectF);
             }
         }
